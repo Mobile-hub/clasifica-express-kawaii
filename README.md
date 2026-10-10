@@ -1,14 +1,14 @@
 # Clasifica Express 🍡
 
+A tiny kawaii arcade game to practise Spanish stress and written accents, for children in 3rd–6th grade of primary school.
+Words ride a conveyor belt: find the stressed syllable (*sílaba tónica*), sort them into *aguda / llana / esdrújula*, and place the *tilde*.
+The game itself is in Spanish. Pure HTML + CSS + JavaScript with SVG art: no dependencies, no build step, no network. Works offline by opening `index.html`.
+
 ![Menu](screenshots/menu.png)
 
 | | |
 | --- | --- |
 | ![Clasifica: sort the word](screenshots/gameplay-1.png) | ![Hint after a mistake](screenshots/gameplay-2.png) |
-
-A tiny kawaii arcade game to practise Spanish stress and written accents, for children in 3rd–6th grade of primary school.
-Words ride a conveyor belt: find the stressed syllable (*sílaba tónica*), sort them into *aguda / llana / esdrújula*, and place the *tilde*.
-The game itself is in Spanish. Pure HTML + CSS + JavaScript with SVG art: no dependencies, no build step, no network. Works offline by opening `index.html`.
 
 ## Play
 
