@@ -52,7 +52,35 @@
 
   const LEVELS = build();
 
-  const api = { MODES, MODE_INFO, WORLDS, LEVELS };
+  // Levels that must be cleared before level n unlocks. Progress opens world by world:
+  //   world 1: levels 1–3 open, its Express (4) after 1–3 · world 2: 5–7 after 4, Express 8 after 5–7 ·
+  //   worlds 3 and 4: one level at a time (9 → 10 → 11, 13 → 14 → 15) once 8 is cleared, each Express after its 3 ·
+  //   world 5: 17–19 after the four Express levels (4, 8, 12, 16) · 20 (the grand final) after everything else.
+  function requirements(n) {
+    if (n === 20) return LEVELS.slice(0, 19).map((l) => l.n);
+    const world = Math.ceil(n / 4);
+    const col = n - (world - 1) * 4;
+    if (col === 4) return [n - 3, n - 2, n - 1];
+    if (world === 1) return [];
+    if (world === 2) return [4];
+    if (world === 5) return [4, 8, 12, 16];
+    return col === 1 ? [8] : [n - 1];
+  }
+
+  function isUnlocked(n, cleared) {
+    return requirements(n).every((r) => cleared.has(r));
+  }
+
+  // Short Spanish text for a locked level: what is still missing.
+  function requirementText(n, cleared) {
+    if (n === 20) return 'Supera todos los demás niveles';
+    const missing = requirements(n).filter((r) => !cleared.has(r));
+    if (missing.length === 0) return '';
+    if (missing.length === 1) return `Supera el nivel ${missing[0]}`;
+    return `Supera los niveles ${missing.slice(0, -1).join(', ')} y ${missing[missing.length - 1]}`;
+  }
+
+  const api = { MODES, MODE_INFO, WORLDS, LEVELS, requirements, isUnlocked, requirementText };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else (root.CE = root.CE || {}).levels = api;
 })(typeof window !== 'undefined' ? window : globalThis);

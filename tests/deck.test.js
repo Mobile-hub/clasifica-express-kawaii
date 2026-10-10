@@ -150,3 +150,33 @@ test('explanations name the class and the rule', () => {
 test('every word in the bank has an explanation', () => {
   for (const w of W.ALL.concat(W.EGGS)) assert.ok(D.explain(w).lines.length >= 2, w.entry);
 });
+
+test('unlocking: world by world, as agreed with the maintainer', () => {
+  const open = (cleared) => L.LEVELS.filter((l) => L.isUnlocked(l.n, new Set(cleared))).map((l) => l.n);
+  const upTo = (n) => Array.from({ length: n }, (_, i) => i + 1);
+  assert.deepStrictEqual(open([]), [1, 2, 3]);
+  assert.deepStrictEqual(open([1, 2, 3]), [1, 2, 3, 4]);
+  assert.deepStrictEqual(open(upTo(4)), [1, 2, 3, 4, 5, 6, 7]);
+  assert.deepStrictEqual(open(upTo(7)), upTo(8));
+  assert.deepStrictEqual(open(upTo(8)), upTo(9).concat([13]));
+  assert.deepStrictEqual(open(upTo(9).concat([13])), upTo(10).concat([13, 14]));
+  assert.deepStrictEqual(open(upTo(16)), upTo(19));
+  assert.deepStrictEqual(open(upTo(19)), upTo(20));
+  assert.ok(!L.isUnlocked(20, new Set(upTo(18))));
+});
+
+test('unlocking: playing the levels in order never gets stuck', () => {
+  const cleared = new Set();
+  for (const lv of L.LEVELS) {
+    assert.ok(L.isUnlocked(lv.n, cleared), `level ${lv.n} locked when reached in order`);
+    cleared.add(lv.n);
+  }
+});
+
+test('unlocking: requirement texts', () => {
+  assert.strictEqual(L.requirementText(4, new Set([2])), 'Supera los niveles 1 y 3');
+  assert.strictEqual(L.requirementText(10, new Set([8])), 'Supera el nivel 9');
+  assert.strictEqual(L.requirementText(17, new Set([4, 8])), 'Supera los niveles 12 y 16');
+  assert.strictEqual(L.requirementText(20, new Set()), 'Supera todos los demás niveles');
+  assert.strictEqual(L.requirementText(2, new Set()), '');
+});
