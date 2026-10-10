@@ -35,6 +35,8 @@ test('diphthongs, triphthongs and final y', () => {
   assert.strictEqual(split('buey'), 'buey');
   assert.strictEqual(split('jersey'), 'jer-sey');
   assert.strictEqual(split('mayo'), 'ma-yo');
+  assert.strictEqual(split('veintiún'), 'vein-tiún');
+  assert.strictEqual(split('construí'), 'cons-truí');
 });
 
 test('hiatus between open vowels and with stressed í / ú', () => {

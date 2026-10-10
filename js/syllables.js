@@ -52,10 +52,16 @@
     return STRONG.includes(c);
   }
 
-  // Two adjacent vowels belong to different syllables when both are open (a, e, o), when one is a stressed
-  // closed vowel (í, ú) or when they are the same closed vowel (chiita).
+  function isClosed(c) {
+    return 'iuíúü'.includes(c);
+  }
+
+  // Two adjacent vowels belong to different syllables when both are open (a, e, o), when a stressed closed
+  // vowel (í, ú) meets an open one, or when they are the same closed vowel (chiita).
+  // Two different closed vowels are always a diphthong in writing, even with a tilde (veintiún, construí).
   function isHiatus(a, b) {
     if (isStrong(a) && isStrong(b)) return true;
+    if (isClosed(a) && isClosed(b)) return stripTildes(a) === stripTildes(b);
     if (STRESSED_WEAK.includes(a) || STRESSED_WEAK.includes(b)) return true;
     return a === b;
   }
