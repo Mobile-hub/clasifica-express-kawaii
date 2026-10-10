@@ -206,7 +206,7 @@
       for (let i = 0; i < 46; i++) {
         parts.push(el('rect', { x: rnd() * 1280, y: rnd() * 720, width: 22, height: 8, rx: 4, fill: colors[i % colors.length], opacity: 0.5, transform: `rotate(${rnd() * 180})`, 'transform-origin': 'center', style: 'transform-box: fill-box' }));
       }
-      parts.push(g({ transform: 'translate(1110 150)' }, [cloud(0.9)]), g({ transform: 'translate(180 230)' }, [cloud(0.7)]));
+      if (theme === 'cake') parts.push(g({ transform: 'translate(1110 150)' }, [cloud(0.9)]), g({ transform: 'translate(180 230)' }, [cloud(0.7)]));
     } else if (theme === 'garden') {
       parts.push(g({ transform: 'translate(1090 140)' }, [cloud(1)]), g({ transform: 'translate(230 200)' }, [cloud(0.75)]));
       const colors = [C.pink, C.lilac, C.sky, '#fff'];

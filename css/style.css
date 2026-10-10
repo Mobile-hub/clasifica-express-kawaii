@@ -49,10 +49,50 @@ body {
   touch-action: none;
 }
 
-.placeholder {
-  font: 700 72px var(--font);
-  fill: var(--ink);
-}
+/* ---------- SVG text ---------- */
+#stage text { font-family: var(--font); fill: var(--ink); }
+.title { font-weight: 700; stroke: #fff; stroke-width: 10px; paint-order: stroke; stroke-linejoin: round; }
+.label { font-weight: 500; }
+.label.soft { opacity: 0.75; }
+.label.strong { font-weight: 700; }
+.world-name { font: 700 30px var(--font); }
+.level-number { font: 700 46px var(--font); }
+.hud-text { font: 700 30px var(--font); }
+.hud-small { font: 600 20px var(--font); stroke: #fff; stroke-width: 6px; paint-order: stroke; }
+.hud-small.help { opacity: 0.85; }
+.prompt { font: 700 30px var(--font); }
+.button-label { font: 700 34px var(--font); }
+.bin-label { font: 700 30px var(--font); stroke: #fff; stroke-width: 8px; paint-order: stroke; }
+.key-badge { font: 700 20px var(--font); opacity: 0.7; stroke: #fff; stroke-width: 6px; paint-order: stroke; }
+#stage .word-text { font-family: var(--font-words); font-weight: 800; }
+#stage .word-text.tonic { font-weight: 900; }
+.float-text { font: 700 44px var(--font); stroke: #fff; stroke-width: 8px; paint-order: stroke; }
+
+/* ---------- interaction ---------- */
+.tappable { cursor: pointer; }
+.focus-ring, .cursor-ring { fill: none; stroke: var(--ink); stroke-width: 5px; stroke-dasharray: 12 10; opacity: 0; }
+.selected > .focus-ring, .selected > .cursor-ring, .button.selected > .focus-ring { opacity: 1; animation: march 0.8s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -44; } }
+.slot-hit { fill: transparent; }
+.slot-cursor { opacity: 0; transition: opacity 0.1s; }
+.vowel-slot.selected .slot-cursor { opacity: 1; animation: hover 0.7s ease-in-out infinite alternate; }
+.vowel-slot:hover .slot-cursor { opacity: 0.6; }
+.tilde-mark { stroke: #ff6fa8; stroke-width: 12px; stroke-linecap: round; fill: none; }
+@keyframes hover { to { translate: 0 -8px; } }
+
+/* ---------- feedback ---------- */
+.popped { animation: pop 0.35s ease-out forwards; }
+@keyframes pop { 50% { scale: 1.35; opacity: 1; } 100% { scale: 0.2; opacity: 0; } }
+.wrong { animation: nope 0.4s ease-in-out; filter: grayscale(0.8); }
+@keyframes nope { 20%, 60% { translate: -10px 0; } 40%, 80% { translate: 10px 0; } }
+.happy-bin { animation: jump 0.4s ease-out; }
+@keyframes jump { 50% { translate: 0 -18px; } }
+#stage .good-letter { fill: #2f9e6e; }
+#stage .bad-letter { fill: #e0457b; }
+.good-button { animation: jump 0.4s ease-out; }
+.bounce { animation: jump 0.45s ease-out; }
+.golden { filter: drop-shadow(0 0 14px #ffd447); }
+.egg-bin { animation: jump 0.8s ease-in-out infinite; }
 
 /* Phones held upright: the game is landscape, suggest rotating (still playable). */
 #rotate {

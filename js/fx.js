@@ -65,9 +65,8 @@
     }, 1.1);
   }
 
-  // Move an existing node along a curve from (x0,y0) to (x1,y1), shrinking it; then call done.
+  // Move an existing node (re-parented onto the fx layer) along a curve from (x0,y0) to (x1,y1), shrinking it.
   function fly(node, x0, y0, x1, y1, dur, done) {
-    const parent = node.parentNode;
     add(node, (it) => {
       const k = Math.min(1, it.t / it.life);
       const e = k * k * (3 - 2 * k);
@@ -79,7 +78,6 @@
         done = null;
       }
     }, dur || 0.45);
-    if (parent && parent !== layer) parent.removeChild(node);
   }
 
   function shake(power, time) {
