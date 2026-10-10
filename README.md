@@ -1,5 +1,11 @@
 # Clasifica Express 🍡
 
+![Menu](screenshots/menu.png)
+
+| | |
+| --- | --- |
+| ![Clasifica: sort the word](screenshots/gameplay-1.png) | ![Hint after a mistake](screenshots/gameplay-2.png) |
+
 A tiny kawaii arcade game to practise Spanish stress and written accents, for children in 3rd–6th grade of primary school.
 Words ride a conveyor belt: find the stressed syllable (*sílaba tónica*), sort them into *aguda / llana / esdrújula*, and place the *tilde*.
 The game itself is in Spanish. Pure HTML + CSS + JavaScript with SVG art: no dependencies, no build step, no network. Works offline by opening `index.html`.
@@ -21,19 +27,26 @@ make serve   # or serve it on http://localhost:8000
 - Words get harder world by world: short words of simple syllables, then consonant clusters and closed syllables, diphthongs, long words, and finally hiatus with tilde (*día*, *maíz*, *búho*).
 - The more correct answers in a row, the faster the belt and the bigger the combo (up to ×5).
 - 5 hearts per level. After a mistake, **Tildi** (the mascot) shows why: the stressed syllable, the word class and the tilde rule. That word comes back later in the same level and must be solved before the level is cleared.
-- Clear a level with enough correct answers; you get 1–3 stars depending on the hearts left. Stars and the high score are saved in the browser.
+- Clear a level with enough correct answers; you get 1–3 stars depending on the hearts left. Losing never takes away progress: you just start that level again with 5 hearts.
+- **Levels unlock world by world**: 1–3 are open, each world's Express opens after its other three, world 2 after level 4, worlds 3 and 4 one level at a time after level 8, world 5 after the four Express levels, and the grand final (20) after everything else.
 - Easter egg: from world 3 on, a golden *sobresdrújula* may show up… with a secret fourth bin.
 
 ## Controls
 
 | Action | Keyboard | Mouse / touch |
 | --- | --- | --- |
-| ¡Pop! | `←` `→` + `Enter`, or `1`…`n` | tap the bubble |
+| ¡Pop! | the bubble's number `1`…`n`, or `←` `→` + `Enter` | tap the bubble |
 | Clasifica | `←` `↓` `→` or `1` `2` `3` (`↑` / `4` for the golden word) | tap the bin |
-| Tildes | `←` `→` + `Enter`, `0` = sin tilde | tap the vowel or SIN TILDE |
+| Tildes | the vowel's number `1`…`n`, `0` = sin tilde, or `←` `→` + `Enter` | tap the vowel or SIN TILDE |
 | Menus and cards | arrows + `Enter` / `Space` | tap |
 | Pause | `P` or `Esc` | ⏸ button |
 | Sound on/off | `M` | speaker button |
+
+Nothing is preselected in the games: the arrow keys show a blinking underline under the option they point at.
+
+## Privacy
+
+Progress (cleared levels, stars and best scores) is saved **only on this device**, in the browser's `localStorage`. The game uses **no cookies**, needs no account and sends nothing anywhere. Clearing the browser's site data resets it.
 
 ## Word bank
 

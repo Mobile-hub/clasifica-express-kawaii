@@ -210,7 +210,8 @@
     } else if (theme === 'garden') {
       parts.push(g({ transform: 'translate(1090 140)' }, [cloud(1)]), g({ transform: 'translate(230 200)' }, [cloud(0.75)]));
       const colors = [C.pink, C.lilac, C.sky, '#fff'];
-      for (let i = 0; i < 9; i++) parts.push(g({ transform: `translate(${60 + i * 145 + rnd() * 30} ${690 - rnd() * 20})` }, [flower(colors[i % colors.length], 0.9)]));
+      // Flowers only in the corners, away from the bins and their labels.
+      [[50, 690], [150, 705], [1130, 705], [1230, 688]].forEach(([x, y], i) => parts.push(g({ transform: `translate(${x} ${y})` }, [flower(colors[i % colors.length], 0.85)])));
     } else if (theme === 'beach') {
       parts.push(g({ transform: 'translate(1140 120)' }, [
         el('circle', { r: 58, fill: C.lemon, ...STROKE }),
