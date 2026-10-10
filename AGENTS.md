@@ -24,7 +24,7 @@ Words travel along a conveyor belt; the player works on the stressed syllable (*
 - Typography: bundled OFL fonts in `assets/fonts/` (licenses alongside): **Fredoka** for titles and UI, **Nunito** for the words to read (very clear accents). Rounded system fonts as fallback.
 - Audience: children in 3rd–6th grade of Spanish primary school (8–12 years old). Vocabulary must be familiar to them.
 - Sound: WebAudio synthesized, soft sine/triangle "blips" + a gentle looping tune. `M` = mute. No speech synthesis (it would give away the stress).
-- Best score and per-level stars in `localStorage` (always wrapped in try/catch; the game must work without it).
+- Progress record **only on this device**, in `localStorage` (`js/storage.js`): best score, and per level cleared/stars/best score. **No cookies**, nothing is sent anywhere. Every access is wrapped in try/catch; the game must work without storage.
 - `make dist` copies only the runtime files (`index.html`, `css/`, `js/`, `assets/`) to `dist/`, ready to be uploaded to the AFA website under `/games/clasifica-express/`.
 
 ### Language model (`js/syllables.js`, pure, tested)
@@ -40,7 +40,8 @@ Words travel along a conveyor belt; the player works on the stressed syllable (*
 ### Sub-games (one arcade skin each, all on the same belt)
 1. **¡Pop! — find the stressed syllable.** The word arrives split into syllable bubbles; pop the stressed one. Keys: `1`…`n` or `←/→` + `Enter`/`Space`; click/tap the bubble.
 2. **Clasifica — sort the word.** The word rides the belt towards three kawaii bins: *AGUDA · LLANA · ESDRÚJULA*. Keys: `←` `↓` `→` (or `1` `2` `3`); click/tap a bin; swipe the word on touch.
-3. **Tildes — place the accent.** The word arrives written without any tilde; drop the tilde on the right vowel or press *SIN TILDE*. Keys: `←/→` to move the tilde over the vowels/"sin tilde" slot + `Enter`/`Space`; click/tap a vowel or the button. Roughly half the words in this mode need no tilde.
+3. **Tildes — place the accent.** The word arrives written without any tilde; put it on the right vowel or press *SIN TILDE*. Keys: the vowel's number (`1`…`n`, `0` = sin tilde) or `←/→` + `Enter`/`Space`; click/tap a vowel or the button. Roughly half the words in this mode need no tilde.
+- In-game keyboard cursor (¡Pop! and Tildes): **nothing is preselected**; the arrows show a **blinking underline** under the option, never a ring around it (a ring looks like an answer). The dashed ring is only for menus and card buttons.
 4. **Express — mixed.** Each word comes with one of the three tasks above, chosen at random.
 
 ### Rules of play
@@ -50,7 +51,8 @@ Words travel along a conveyor belt; the player works on the stressed syllable (*
 - **Easter egg — sobresdrújulas**: from world 3 on, very rarely, a golden word such as `dí-ga-me-lo` appears. A secret fourth bin (*¡SOBRESDRÚJULA!*) pops up for it (`↑`, `4` or tap). Getting it right gives a big bonus and a surprise animation; missing it costs no heart.
 - Combo: every 5 correct answers in a row raises the multiplier (×1 → ×5, capped); a mistake resets it. Each correct answer slightly speeds up the belt (capped per level); a mistake slows it down a little.
 - A level is cleared after N correct words (N grows with the level). Stars (1–3) depend on hearts left.
-- Game over → retry the level or back to the menu. All 20 levels are selectable from the menu; stars show progress.
+- Game over → retry the level (always with 5 fresh hearts) or back to the menu. Progress is cumulative: losing never takes away a cleared level.
+- **Unlocking** (`levels.requirements`): world 1 levels 1–3 open, Express 4 after 1–3 · world 2 (5–7) after 4, Express 8 after 5–7 · worlds 3 and 4 open one level at a time once 8 is cleared (9 → 10 → 11, 13 → 14 → 15), each Express after its three · world 5 (17–19) after the four Express levels 4, 8, 12, 16 · level 20 after all the others. Locked levels show a padlock and what is missing. `?all=1` unlocks everything (dev only).
 
 ### 20 levels (5 worlds × 4 levels)
 Each world uses a word tier; inside a world the order is ¡Pop! → Clasifica → Tildes → Express. Tiers accumulate (a world also draws some words from earlier tiers).
@@ -74,6 +76,7 @@ js/syllables.js  syllabifier, stress, class and tilde rules (pure, tested)
 js/words.js      word bank by theme + computed tiers, Spanish (pure, tested)
 js/levels.js     the 20 level definitions (pure, tested)
 js/deck.js       per-level word queue, retries, answer checking, combo, hint texts (pure, tested)
+js/storage.js    device-only progress record in localStorage, unlock helpers (pure, tested)
 js/sprites.js    kawaii SVG art (belt, bins, bubbles, Tildi, hearts, backgrounds)
 js/audio.js      WebAudio synth
 js/input.js      mouse / touch / keyboard → abstract actions
@@ -86,7 +89,7 @@ Makefile, LICENSE, README.md
 ```
 
 ### Debug URL parameters (dev only)
-`index.html?level=N` (jump to a level), `&mode=pop|sort|tilde|express` (override its mode), `&seed=N` (deterministic order), `&egg=1` (always the golden sobresdrújula), `&auto=1` (bot answers correctly) or `&auto=miss` (bot misses every 7th word), `&screen=intro|play|hint|pause|clear|gameover|victory`, `&sim=N` (simulate N seconds in fixed steps: headless Chrome does not run animation frames).
+`index.html?level=N` (jump to a level), `&mode=pop|sort|tilde|express` (override its mode), `&seed=N` (deterministic order), `&all=1` (all levels unlocked), `&egg=1` (always the golden sobresdrújula), `&auto=1` (bot answers correctly) or `&auto=miss` (bot misses every 7th word), `&screen=intro|play|hint|pause|clear|gameover|victory`, `&sim=N` (simulate N seconds in fixed steps: headless Chrome does not run animation frames).
 The game writes `data-state="state:level:score"` (and `data-error` on failures) on `<body>`, so a headless run can be checked with `--dump-dom`, e.g. the whole game with the bot:
 `google-chrome --headless=new --virtual-time-budget=900000 --dump-dom "file://$PWD/index.html?level=1&auto=1&sim=1000"` → `victory:20:…`.
 Screenshots: `google-chrome --headless=new --window-size=1280,720 --screenshot=out.png "file://$PWD/index.html?level=3&screen=play"`.

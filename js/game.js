@@ -15,7 +15,6 @@
   const HEARTS = 5;
   const TILDI = { x: 104, y: 600, s: 0.8 };
   const PRAISE = ['¡Bien!', '¡Genial!', '¡Súper!', '¡Toma ya!', '¡Eso es!', '¡Bravo!'];
-  const STORE_KEY = 'clasifica-express:progress';
 
   const MODE_HELP = {
     pop: ['Las palabras llegan partidas en sílabas.', 'Explota la sílaba que suena más fuerte: la tónica.'],
@@ -24,24 +23,11 @@
     express: ['¡Todo mezclado!', 'Cada palabra trae su reto: sílaba tónica, cubo o tilde.'],
   };
 
-  function loadProgress() {
-    try {
-      const p = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-      return { stars: p.stars || {}, best: p.best || 0 };
-    } catch (e) {
-      return { stars: {}, best: 0 };
-    }
-  }
-
-  function saveProgress(p) {
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify(p));
-    } catch (e) { /* storage unavailable: progress lives only in this session */ }
-  }
+  const ST = CE.storage;
 
   const game = {
     state: 'boot',
-    progress: loadProgress(),
+    progress: ST.load(),
     menuSel: 0,
     levelIdx: 0,
     runScore: 0,
@@ -132,7 +118,12 @@
       audio.play('click');
       if (act === 'menu') this.showMenu();
       else if (act === 'retry') this.startLevel(this.levelIdx, true);
-      else if (act === 'next') this.startLevel(this.levelIdx + 1);
+      else if (act === 'next') {
+        const next = this.levelIdx === LEVELS.length - 1 ? null : ST.nextLevel(this.progress, this.level.n);
+        if (this.levelIdx === LEVELS.length - 1) this.showVictory();
+        else if (next) this.startLevel(next - 1);
+        else this.showMenu();
+      }
       else if (act === 'resume') this.resume();
       else if (act === 'start') this.beginPlay();
     },
@@ -152,7 +143,9 @@
       s.appendChild(g({ transform: 'translate(110 330) scale(0.95)' }, [SP.tildi('joy')]));
       s.appendChild(this.label(250, 230, 26, 'Agudas · llanas · esdrújulas'));
       s.appendChild(this.label(250, 262, 26, '¡y tildes!'));
-      s.appendChild(this.label(250, 470, 24, `Récord: ${this.progress.best}`));
+      s.appendChild(this.label(250, 460, 24, `Récord: ${this.progress.best}`, { class: 'label strong' }));
+      this.menuStatus = this.label(250, 498, 22, '');
+      s.appendChild(this.menuStatus);
       s.appendChild(this.label(250, 540, 20, 'Flechas + Enter, ratón o toca', { class: 'label soft' }));
       s.appendChild(this.label(250, 568, 20, 'M: sonido · P: pausa', { class: 'label soft' }));
 
@@ -163,14 +156,15 @@
         for (let m = 0; m < 4; m++) {
           const lv = LEVELS[wi * 4 + m];
           const x = 705 + m * 150;
-          const stars = this.progress.stars[lv.n] || 0;
-          const node = g({ transform: `translate(${x} ${y})`, 'data-act': 'level', 'data-arg': lv.n - 1, class: 'tappable level-button' }, [
+          const stars = ST.levelInfo(this.progress, lv.n).stars;
+          const open = this.unlocked(lv.n);
+          const node = g({ transform: `translate(${x} ${y})`, 'data-act': 'level', 'data-arg': lv.n - 1, class: 'tappable level-button' + (open ? '' : ' locked') }, [
             el('rect', { x: -72, y: -56, width: 144, height: 112, rx: 30, class: 'focus-ring' }),
             el('rect', { x: -64, y: -42, width: 128, height: 96, rx: 26, fill: C.ink, opacity: 0.2 }),
-            el('rect', { x: -64, y: -48, width: 128, height: 96, rx: 26, fill: [C.pink, C.mint, C.sky, C.lilac, C.peach][wi], stroke: C.ink, 'stroke-width': 5 }),
-            el('text', { x: -14, y: 2, class: 'level-number', 'text-anchor': 'middle' }, String(lv.n)),
-            g({ transform: 'translate(36 -14) scale(0.9)' }, [SP.modeIcon(lv.mode)]),
-            g({ transform: 'translate(0 30)' }, [0, 1, 2].map((i) => g({ transform: `translate(${(i - 1) * 30} 0)` }, [SP.star(i < stars, 12)]))),
+            el('rect', { x: -64, y: -48, width: 128, height: 96, rx: 26, fill: open ? [C.pink, C.mint, C.sky, C.lilac, C.peach][wi] : C.grey, stroke: C.ink, 'stroke-width': 5 }),
+            el('text', { x: -14, y: 2, class: 'level-number', 'text-anchor': 'middle', opacity: open ? 1 : 0.45 }, String(lv.n)),
+            g({ transform: 'translate(36 -14) scale(0.9)' }, [open ? SP.modeIcon(lv.mode) : SP.padlock()]),
+            open ? g({ transform: 'translate(0 30)' }, [0, 1, 2].map((i) => g({ transform: `translate(${(i - 1) * 30} 0)` }, [SP.star(i < stars, 12)]))) : null,
           ]);
           this.levelNodes.push(node);
           s.appendChild(node);
@@ -179,8 +173,34 @@
       this.highlightMenu();
     },
 
+    unlocked(n) {
+      return !!this.debug.all || ST.isUnlocked(this.progress, n);
+    },
+
+    // First open level not cleared yet (or the last open one), where the menu cursor starts.
+    firstOpenLevel() {
+      const done = ST.cleared(this.progress);
+      const open = LEVELS.filter((l) => this.unlocked(l.n));
+      const todo = open.find((l) => !done.has(l.n));
+      return (todo || open[open.length - 1]).n - 1;
+    },
+
     highlightMenu() {
       this.levelNodes.forEach((n, i) => n.classList.toggle('selected', i === this.menuSel));
+      const lv = LEVELS[this.menuSel];
+      const info = ST.levelInfo(this.progress, lv.n);
+      this.menuStatus.textContent = this.unlocked(lv.n)
+        ? `Nivel ${lv.n} · ${MODE_INFO[lv.mode].title}` + (info.best ? ` · mejor: ${info.best}` : '')
+        : `Bloqueado · ${CE.levels.requirementText(lv.n, ST.cleared(this.progress))}`;
+    },
+
+    tryStart(idx) {
+      if (this.unlocked(idx + 1)) return this.startLevel(idx);
+      audio.play('bad');
+      const node = this.levelNodes[idx];
+      node.classList.remove('wrong');
+      node.getBoundingClientRect();
+      node.classList.add('wrong');
     },
 
     menuInput(a) {
@@ -191,11 +211,12 @@
           this.highlightMenu();
           audio.play('move');
         } else if (a.key === 'ok') {
-          this.startLevel(this.menuSel);
+          this.tryStart(this.menuSel);
         }
       } else if (a.type === 'tap' && a.act === 'level') {
         this.menuSel = Number(a.arg);
-        this.startLevel(this.menuSel);
+        this.highlightMenu();
+        this.tryStart(this.menuSel);
       }
     },
 
@@ -409,9 +430,8 @@
       this.runScore += this.combo.score;
       const stars = this.stars();
       const n = this.level.n;
-      this.progress.stars[n] = Math.max(this.progress.stars[n] || 0, stars);
-      this.progress.best = Math.max(this.progress.best, this.runScore);
-      saveProgress(this.progress);
+      const unlockedNow = ST.recordClear(this.progress, n, stars, this.combo.score, this.runScore);
+      ST.save(this.progress);
       audio.play('clear');
       fx.confetti(640, 200, 80, 500);
       this.setTildi('joy');
@@ -421,6 +441,10 @@
         this.label(640, 395, 34, `Puntos: ${this.runScore}`, { class: 'label strong' }),
         this.label(640, 440, 26, this.combo.best === 1 ? 'Mejor racha: 1 acierto' : `Mejor racha: ${this.combo.best} aciertos seguidos`),
       ];
+      if (unlockedNow.length) {
+        const list = unlockedNow.length === 1 ? `el nivel ${unlockedNow[0]}` : `los niveles ${unlockedNow.slice(0, -1).join(', ')} y ${unlockedNow[unlockedNow.length - 1]}`;
+        nodes.push(this.label(640, 484, 26, `¡Has desbloqueado ${list}!`, { class: 'label strong unlocked-text' }));
+      }
       const last = this.levelIdx === LEVELS.length - 1;
       const buttons = [
         { label: 'Menú', act: 'menu', color: C.white },
@@ -434,6 +458,8 @@
       this.state = 'gameover';
       clear(this.L.carriers);
       clear(this.L.fixed);
+      ST.recordScore(this.progress, this.runScore + this.combo.score);
+      ST.save(this.progress);
       audio.play('gameover');
       this.setTildi('sad');
       const nodes = [
@@ -510,7 +536,10 @@
       if (this.state === 'play' || this.state === 'hint' || this.state === 'paused') {
         h.appendChild(el('rect', { x: 640 - 300, y: 122, width: 600, height: 50, rx: 25, fill: C.white, opacity: 0.85, stroke: C.ink, 'stroke-width': 3 }));
         h.appendChild(el('text', { x: 640, y: 157, class: 'prompt', 'text-anchor': 'middle' }, info.task));
-        if (this.mode && this.mode.keysHelp) h.appendChild(el('text', { x: 660, y: 708, class: 'hud-small help', 'text-anchor': 'middle' }, this.mode.keysHelp));
+        if (this.mode && this.mode.keysHelp) {
+          h.appendChild(el('rect', { x: 660 - 330, y: 682, width: 660, height: 34, rx: 17, fill: C.white, opacity: 0.85 }));
+          h.appendChild(el('text', { x: 660, y: 706, class: 'hud-small help', 'text-anchor': 'middle' }, this.mode.keysHelp));
+        }
       }
     },
 

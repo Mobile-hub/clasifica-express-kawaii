@@ -12,6 +12,7 @@
     if (q.has('auto')) out.auto = q.get('auto') === 'miss' ? 'miss' : true;
     if (q.has('screen')) out.screen = q.get('screen');
     if (q.has('egg')) out.egg = true;
+    if (q.has('all')) out.all = true;
     if (q.has('sim')) out.sim = Number(q.get('sim')) || 0;
     return out;
   }
@@ -41,7 +42,7 @@
       CE.audio.startMusic();
     });
     CE.game.init(layers, debug);
-    if (debug.level) CE.game.menuSel = debug.level - 1;
+    CE.game.menuSel = debug.level ? debug.level - 1 : CE.game.firstOpenLevel();
     CE.game.showMenu();
     if (debug.screen) CE.game.debugScreen(debug.screen);
     else if (debug.level || debug.auto) CE.game.startLevel(CE.game.menuSel);

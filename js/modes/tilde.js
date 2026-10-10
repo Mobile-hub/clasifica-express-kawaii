@@ -6,10 +6,6 @@
   const FONT = 72;
   const ACCENT = { a: 'á', e: 'é', i: 'í', o: 'ó', u: 'ú' };
 
-  function tildeMark() {
-    return el('path', { d: 'M-8 12 L10 -14', class: 'tilde-mark' });
-  }
-
   function build(task) {
     const letters = task.shown.split('');
     const widths = letters.map((ch) => textWidth(ch, FONT, 800));
@@ -30,10 +26,11 @@
 
     // Slot order: every vowel left to right, then the SIN TILDE button.
     const slots = task.slots.slice();
-    const slotNodes = slots.map((pos) => {
+    const slotNodes = slots.map((pos, k) => {
       const node = g({ 'data-act': 'slot', 'data-arg': pos, class: 'tappable vowel-slot' }, [
         el('rect', { x: centers[pos] - Math.max(widths[pos], 44) / 2 - 4, y: -h / 2 - 50, width: Math.max(widths[pos], 44) + 8, height: h + 40, rx: 18, class: 'slot-hit' }),
-        g({ class: 'slot-cursor', transform: `translate(${centers[pos]} ${-FONT * 0.5})` }, [tildeMark()]),
+        el('rect', { x: centers[pos] - widths[pos] / 2 + 2, y: FONT * 0.36 + 18, width: widths[pos] - 4, height: 7, rx: 3.5, class: 'caret' }),
+        el('text', { x: centers[pos], y: h / 2 - 12, class: 'key-badge', 'text-anchor': 'middle' }, String(k + 1)),
       ]);
       return node;
     });
@@ -41,18 +38,20 @@
     slotNodes.forEach((n) => carrier.appendChild(n));
 
     const noTilde = g({ transform: 'translate(660 585)', 'data-act': 'notilde', class: 'tappable' }, [button('SIN TILDE', 320, 92, C.mint, { size: 40 })]);
+    const noTildeCaret = el('rect', { x: 660 - 120, y: 645, width: 240, height: 8, rx: 4, class: 'caret' });
     const fixed = g({ class: 'tilde-fixed' }, [
       noTilde,
-      el('text', { x: 660, y: 670, class: 'key-badge', 'text-anchor': 'middle' }, 'tecla 0'),
+      g(null, [noTildeCaret]),
     ]);
 
-    let cursor = 0;
+    // No option is preselected: the blinking underline only appears once the arrows are used.
+    let cursor = -1;
+    const n = slots.length + 1;
     const setCursor = (i) => {
-      cursor = (i + slots.length + 1) % (slots.length + 1);
-      slotNodes.forEach((n, k) => n.classList.toggle('selected', k === cursor));
-      noTilde.querySelector('.button').classList.toggle('selected', cursor === slots.length);
+      cursor = (i + n) % n;
+      slotNodes.forEach((node, k) => node.classList.toggle('selected', k === cursor));
+      noTildeCaret.parentNode.classList.toggle('selected', cursor === slots.length);
     };
-    setCursor(0);
     const choiceAt = (i) => (i === slots.length ? -1 : slots[i]);
 
     return {
@@ -60,12 +59,13 @@
       width: w,
       height: h,
       fixed,
-      keysHelp: '← → mueve la tilde · Enter la suelta · 0 = sin tilde · o toca la vocal',
+      keysHelp: 'Toca la vocal · o pulsa su número (0 = sin tilde) · o ← → y Enter',
       handle(a) {
-        if (a.type === 'key' && a.key === 'left') { setCursor(cursor - 1); return { moved: true }; }
+        if (a.type === 'key' && a.key === 'left') { setCursor(cursor < 0 ? n - 1 : cursor - 1); return { moved: true }; }
         if (a.type === 'key' && a.key === 'right') { setCursor(cursor + 1); return { moved: true }; }
-        if (a.type === 'key' && a.key === 'ok') return { choice: choiceAt(cursor) };
+        if (a.type === 'key' && a.key === 'ok') return cursor < 0 ? null : { choice: choiceAt(cursor) };
         if (a.type === 'digit' && a.n === 0) { setCursor(slots.length); return { choice: -1 }; }
+        if (a.type === 'digit' && a.n >= 1 && a.n <= slots.length) { setCursor(a.n - 1); return { choice: slots[a.n - 1] }; }
         if (a.type === 'tap' && a.act === 'slot') return { choice: Number(a.arg) };
         if (a.type === 'tap' && a.act === 'notilde') return { choice: -1 };
         return null;

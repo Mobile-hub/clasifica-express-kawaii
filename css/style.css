@@ -66,19 +66,21 @@ body {
 .key-badge { font: 700 20px var(--font); opacity: 0.7; stroke: #fff; stroke-width: 6px; paint-order: stroke; }
 #stage .word-text { font-family: var(--font-words); font-weight: 800; }
 #stage .word-text.tonic { font-weight: 900; }
+#stage .unlocked-text { fill: #e0457b; }
 .float-text { font: 700 44px var(--font); stroke: #fff; stroke-width: 8px; paint-order: stroke; }
 
 /* ---------- interaction ---------- */
 .tappable { cursor: pointer; }
-.focus-ring, .cursor-ring { fill: none; stroke: var(--ink); stroke-width: 5px; stroke-dasharray: 12 10; opacity: 0; }
-.selected > .focus-ring, .selected > .cursor-ring, .button.selected > .focus-ring { opacity: 1; animation: march 0.8s linear infinite; }
+.focus-ring { fill: none; stroke: var(--ink); stroke-width: 5px; stroke-dasharray: 12 10; opacity: 0; }
+.selected > .focus-ring, .button.selected > .focus-ring { opacity: 1; animation: march 0.8s linear infinite; }
+/* In-game keyboard cursor: a blinking underline, never a ring around the options. */
+.caret { fill: var(--ink); opacity: 0; }
+.selected > .caret { animation: blink 1s steps(2, jump-none) infinite; }
+@keyframes blink { 0% { opacity: 1; } 100% { opacity: 0; } }
+.level-button.locked { cursor: not-allowed; }
 @keyframes march { to { stroke-dashoffset: -44; } }
 .slot-hit { fill: transparent; }
-.slot-cursor { opacity: 0; transition: opacity 0.1s; }
-.vowel-slot.selected .slot-cursor { opacity: 1; animation: hover 0.7s ease-in-out infinite alternate; }
-.vowel-slot:hover .slot-cursor { opacity: 0.6; }
-.tilde-mark { stroke: #ff6fa8; stroke-width: 12px; stroke-linecap: round; fill: none; }
-@keyframes hover { to { translate: 0 -8px; } }
+.vowel-slot:hover .caret { opacity: 0.35; }
 
 /* ---------- feedback ---------- */
 .popped { animation: pop 0.35s ease-out forwards; }

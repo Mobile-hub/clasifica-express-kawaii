@@ -241,6 +241,14 @@
     return g({ class: 'background' }, parts);
   }
 
+  function padlock() {
+    return g({ class: 'padlock' }, [
+      el('path', { d: 'M-12 -4 V-14 A12 12 0 0 1 12 -14 V-4', fill: 'none', ...STROKE, 'stroke-width': 6 }),
+      el('rect', { x: -19, y: -6, width: 38, height: 30, rx: 9, fill: C.lemon, ...STROKE, 'stroke-width': 4 }),
+      el('circle', { cx: 0, cy: 7, r: 4, fill: C.ink }),
+    ]);
+  }
+
   // Icon for a game mode, used on the level buttons.
   function modeIcon(mode) {
     if (mode === 'pop') return g(null, [el('circle', { r: 14, fill: C.sky, ...STROKE, 'stroke-width': 3 }), el('circle', { cx: -5, cy: -5, r: 3, fill: '#fff' })]);
@@ -249,5 +257,5 @@
     return el('path', { d: 'M4 -16 L-10 3 H1 L-4 16 L11 -4 H0 Z', fill: C.lemon, ...STROKE, 'stroke-width': 3 });
   }
 
-  (root.CE = root.CE || {}).sprites = { C, CLASS_COLOR, face, wordBox, bubble, stressDots, bin, heart, star, tildi, belt, button, cloud, flower, background, modeIcon };
+  (root.CE = root.CE || {}).sprites = { C, CLASS_COLOR, face, wordBox, bubble, stressDots, bin, heart, star, tildi, belt, button, cloud, flower, background, modeIcon, padlock };
 })(window);

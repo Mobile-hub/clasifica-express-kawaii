@@ -22,10 +22,10 @@
     task.options.forEach((syl, i) => {
       const bw = widths[i];
       const node = g({ transform: `translate(${x + bw / 2} ${top})`, 'data-act': 'syl', 'data-arg': i, class: 'tappable' }, [
-        el('rect', { x: -bw / 2 - 10, y: -BH / 2 - 10, width: bw + 20, height: BH + 20, rx: BH / 2 + 10, class: 'cursor-ring' }),
         bubble(bw, BH, COLORS[i % COLORS.length]),
+        el('rect', { x: -bw / 2 + 16, y: BH / 2 + 5, width: bw - 32, height: 7, rx: 3.5, class: 'caret' }),
         el('text', { x: 0, y: FONT * 0.35, class: 'word-text', 'text-anchor': 'middle', style: `font-size:${FONT}px` }, syl),
-        el('text', { x: 0, y: BH / 2 + 24, class: 'key-badge', 'text-anchor': 'middle' }, String(i + 1)),
+        el('text', { x: 0, y: BH / 2 + 32, class: 'key-badge', 'text-anchor': 'middle' }, String(i + 1)),
       ]);
       node.cx = x + bw / 2;
       bubbles.push(node);
@@ -33,23 +33,23 @@
       x += bw + GAP;
     });
 
-    let cursor = 0;
+    // No option is preselected: the blinking underline only appears once the arrows are used.
+    let cursor = -1;
     const setCursor = (i) => {
       cursor = (i + bubbles.length) % bubbles.length;
       bubbles.forEach((b, k) => b.classList.toggle('selected', k === cursor));
     };
-    setCursor(0);
 
     return {
       carrier,
       width: w,
       height: h,
       fixed: null,
-      keysHelp: '← → elige · Enter explota · o toca la burbuja · 1–' + bubbles.length,
+      keysHelp: 'Toca la burbuja · o pulsa su número · o ← → y Enter',
       handle(a) {
-        if (a.type === 'key' && a.key === 'left') { setCursor(cursor - 1); return { moved: true }; }
+        if (a.type === 'key' && a.key === 'left') { setCursor(cursor < 0 ? bubbles.length - 1 : cursor - 1); return { moved: true }; }
         if (a.type === 'key' && a.key === 'right') { setCursor(cursor + 1); return { moved: true }; }
-        if (a.type === 'key' && a.key === 'ok') return { choice: cursor };
+        if (a.type === 'key' && a.key === 'ok') return cursor < 0 ? null : { choice: cursor };
         if (a.type === 'digit' && a.n >= 1 && a.n <= bubbles.length) { setCursor(a.n - 1); return { choice: a.n - 1 }; }
         if (a.type === 'tap' && a.act === 'syl') { setCursor(Number(a.arg)); return { choice: Number(a.arg) }; }
         return null;
