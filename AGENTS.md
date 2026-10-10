@@ -21,7 +21,8 @@ Words travel along a conveyor belt; the player works on the stressed syllable (*
 ### Technical decisions
 - **Vanilla JS + inline SVG**, no framework. A single `<svg viewBox="0 0 1280 720">` stage scaled to fit the screen (16:9, letterboxed). SVG gives crisp kawaii vectors, native hit-testing for mouse/touch and CSS animations, with nothing to build.
 - Art is hand-written SVG in `js/sprites.js` (functions returning SVG nodes): pastel palette, thick rounded outlines, blush cheeks, dot eyes. No bitmap images.
-- Typography: rounded system font stack; an OFL font may be bundled later under `assets/fonts/` (with its license) if the maintainer agrees.
+- Typography: bundled OFL fonts in `assets/fonts/` (licenses alongside): **Fredoka** for titles and UI, **Nunito** for the words to read (very clear accents). Rounded system fonts as fallback.
+- Audience: children in 3rd–6th grade of Spanish primary school (8–12 years old). Vocabulary must be familiar to them.
 - Sound: WebAudio synthesized, soft sine/triangle "blips" + a gentle looping tune. `M` = mute. No speech synthesis (it would give away the stress).
 - Best score and per-level stars in `localStorage` (always wrapped in try/catch; the game must work without it).
 - `make dist` copies only the runtime files (`index.html`, `css/`, `js/`, `assets/`) to `dist/`, ready to be uploaded to the AFA website under `/games/clasifica-express/`.
@@ -32,7 +33,9 @@ Words travel along a conveyor belt; the player works on the stressed syllable (*
 - Class: last = *aguda*, penultimate = *llana*, antepenultimate = *esdrújula* (earlier = *sobresdrújula*).
 - Tilde check: a word needs a tilde if (aguda ending in vowel/n/s) or (llana not ending in vowel/n/s) or (esdrújula/sobresdrújula) or (stressed `i`/`u` in hiatus with an open vowel: `dí-a`, `ba-úl`).
 - A syllabifier (vowels, diphthongs, triphthongs, hiatus, inseparable clusters `pl br tr ch ll rr`…) cross-checks every hand-written hyphenation; mismatches fail the tests unless listed in an explicit, commented exception list.
-- Excluded from the bank: monosyllables, diacritical tildes (`té/te`, `más/mas`), interrogatives, proper nouns, prefix-sensitive words (`sub-ra-yar`), loanwords, anything not suitable for children.
+- Excluded from the bank: monosyllables, diacritical tildes (`té/te`, `más/mas`), interrogatives, adverbs in `-mente` (two stresses), proper nouns, prefix-sensitive words (`sub-ra-yar`), loanwords, anything not suitable for children.
+- Words whose spelling with or without a tilde is *another valid word* (`papá/papa`, `saltó/salto`, `está/esta`, `número/numero`) are prefixed with `*` in the bank: they are fine for ¡Pop! and Clasifica but are never used in Tildes, where the context to tell them apart is missing.
+- Sobresdrújulas (`dí-ga-me-lo`) are kept apart, only for the easter egg (see below).
 
 ### Sub-games (one arcade skin each, all on the same belt)
 1. **¡Pop! — find the stressed syllable.** The word arrives split into syllable bubbles; pop the stressed one. Keys: `1`…`n` or `←/→` + `Enter`/`Space`; click/tap the bubble.
@@ -41,8 +44,10 @@ Words travel along a conveyor belt; the player works on the stressed syllable (*
 4. **Express — mixed.** Each word comes with one of the three tasks above, chosen at random.
 
 ### Rules of play
-- 5 hearts. A wrong answer or a word falling off the belt costs a heart; the word goes back into the queue.
-- **No hints and no answer reveal** (same principle as multiply). The mascot, *Tildi* (a cute accent-mark creature), reacts with emotions only.
+- 5 hearts. A wrong answer or a word falling off the belt costs a heart.
+- **Learn from mistakes** (this differs from multiply): after a miss the belt pauses and the mascot, *Tildi* (a cute accent-mark creature), shows a short card explaining why, with the stressed syllable highlighted and the rule that applies, e.g. «can-**ción** → aguda: acaba en *n*, lleva tilde». The card closes with any key, click or tap. The word then comes back **later in the same level** (a few words after, not immediately) and must be answered right before the level can be cleared.
+- Before answering there are no hints: the task itself is the exercise.
+- **Easter egg — sobresdrújulas**: from world 3 on, very rarely, a golden word such as `dí-ga-me-lo` appears. A secret fourth bin (*¡SOBRESDRÚJULA!*) pops up for it (`↑`, `4` or tap). Getting it right gives a big bonus and a surprise animation; missing it costs no heart.
 - Combo: every 5 correct answers in a row raises the multiplier (×1 → ×5, capped); a mistake resets it. Each correct answer slightly speeds up the belt (capped per level); a mistake slows it down a little.
 - A level is cleared after N correct words (N grows with the level). Stars (1–3) depend on hearts left.
 - Game over → retry the level or back to the menu. All 20 levels are selectable from the menu; stars show progress.

@@ -1,7 +1,23 @@
+/* Bundled OFL fonts (see assets/fonts/OFL-*.txt): Fredoka for titles, Nunito for the words to read. */
+@font-face {
+  font-family: "Fredoka";
+  src: url("../assets/fonts/fredoka.woff2") format("woff2");
+  font-weight: 300 700;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("../assets/fonts/nunito.woff2") format("woff2");
+  font-weight: 200 1000;
+  font-display: block;
+}
+
 :root {
   --bg: #ffe4ef;
   --ink: #5b3a55;
-  --font: "Fredoka", "Nunito", "Varela Round", "Quicksand", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --font: "Fredoka", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --font-words: "Nunito", ui-rounded, system-ui, sans-serif;
 }
 
 html, body {
