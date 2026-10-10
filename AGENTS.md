@@ -68,23 +68,28 @@ Target: at least 800 words in total, balanced between agudas, llanas and esdrúj
 ### Structure
 ```
 index.html, css/style.css
+assets/fonts/    Fredoka + Nunito (woff2, OFL licenses)
+js/svg.js        tiny SVG DOM helpers (el, translate, textWidth, wrap)
 js/syllables.js  syllabifier, stress, class and tilde rules (pure, tested)
-js/words.js      word bank by tier, Spanish (pure, tested)
+js/words.js      word bank by theme + computed tiers, Spanish (pure, tested)
 js/levels.js     the 20 level definitions (pure, tested)
-js/deck.js       per-level word queue, re-queue on miss, tilde stripping, combo/score (pure, tested)
+js/deck.js       per-level word queue, retries, answer checking, combo, hint texts (pure, tested)
+js/sprites.js    kawaii SVG art (belt, bins, bubbles, Tildi, hearts, backgrounds)
 js/audio.js      WebAudio synth
 js/input.js      mouse / touch / keyboard → abstract actions
-js/sprites.js    kawaii SVG art (belt, bins, bubbles, Tildi, hearts)
-js/fx.js         confetti, sparkles, floating texts, shake
-js/modes/*.js    pop.js, sort.js, tilde.js, express.js
-js/game.js       state machine: menu, level intro, play, level clear, game over, victory
-js/main.js       loop and boot
-tests/*.test.js  node tests, no deps
+js/fx.js         confetti, sparkles, floating texts, fly tweens, shake
+js/modes/*.js    pop.js, sort.js, tilde.js (Express mixes them per word)
+js/game.js       state machine: menu, intro, play, hint, pause, clear, game over, victory
+js/main.js       layers, font loading, loop and boot
+tests/*.test.js  node tests, no deps (tests/harness.js)
 Makefile, LICENSE, README.md
 ```
 
 ### Debug URL parameters (dev only)
-`index.html?level=N` (jump to a level), `&mode=pop|sort|tilde|express`, `&auto=1` (bot answers correctly), `&seed=N` (deterministic order), `&screen=clear|gameover|victory`. Use them with headless Chrome to take screenshots and check every screen without playing it by hand.
+`index.html?level=N` (jump to a level), `&mode=pop|sort|tilde|express` (override its mode), `&seed=N` (deterministic order), `&egg=1` (always the golden sobresdrújula), `&auto=1` (bot answers correctly) or `&auto=miss` (bot misses every 7th word), `&screen=intro|play|hint|pause|clear|gameover|victory`, `&sim=N` (simulate N seconds in fixed steps: headless Chrome does not run animation frames).
+The game writes `data-state="state:level:score"` (and `data-error` on failures) on `<body>`, so a headless run can be checked with `--dump-dom`, e.g. the whole game with the bot:
+`google-chrome --headless=new --virtual-time-budget=900000 --dump-dom "file://$PWD/index.html?level=1&auto=1&sim=1000"` → `victory:20:…`.
+Screenshots: `google-chrome --headless=new --window-size=1280,720 --screenshot=out.png "file://$PWD/index.html?level=3&screen=play"`.
 
 ### Publishing (only after maintainer approval)
 `make dist`, then upload `dist/` to `/games/clasifica-express/` on the AFA website (same channel as multiply) and add the link to `games/index.html`.

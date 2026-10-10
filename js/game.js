@@ -209,7 +209,9 @@
       this.levelIdx = idx;
       this.menuSel = idx;
       const base = LEVELS[idx];
-      this.level = this.debug.mode ? Object.assign({}, base, { mode: this.debug.mode }) : base;
+      this.level = Object.assign({}, base);
+      if (this.debug.mode) this.level.mode = this.debug.mode;
+      if (this.debug.egg) this.level.eggChance = 1;
       this.levelStartScore = this.runScore;
       this.deck = new D.Deck(this.level, this.rng);
       this.combo = new D.Combo(this.level.maxSpeed);
@@ -273,7 +275,7 @@
       this.setTildi(this.task.egg ? 'wow' : 'happy');
       if (this.task.egg) {
         audio.play('egg');
-        fx.floatText(640, 250, '¡Palabra dorada!', C.gold, 48);
+        fx.floatText(980, 300, '¡Palabra dorada!', C.gold, 48);
       }
       this.renderHud();
     },

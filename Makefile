@@ -3,7 +3,7 @@
 PORT ?= 8000
 JS := $(wildcard js/*.js) $(wildcard js/modes/*.js) $(wildcard tests/*.js)
 TESTS := $(wildcard tests/*.test.js)
-RUNTIME := index.html css js $(wildcard assets)
+RUNTIME := index.html css js LICENSE $(wildcard assets)
 
 help:
 	@echo "make open   - open the game in the default browser"

@@ -11,6 +11,7 @@
     if (q.has('seed')) out.seed = Number(q.get('seed')) || 0;
     if (q.has('auto')) out.auto = q.get('auto') === 'miss' ? 'miss' : true;
     if (q.has('screen')) out.screen = q.get('screen');
+    if (q.has('egg')) out.egg = true;
     if (q.has('sim')) out.sim = Number(q.get('sim')) || 0;
     return out;
   }
